@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+
+require 'yaml'
+require 'erb'
+require 'socket'
+
+ENV['PATH'] = '/bin:/usr/bin'
+
+# Git commands run by this script.
+COMMANDS = {
+  #
+  # Push git repo to remote
+  #
+  push:  %q{sudo -u <%= @user %> ssh-agent /bin/bash -c "cd <%= @directory %> && ssh-add <%= @identity %> && git push <%= @remote %> <%= @branch %> >/dev/null 2>&1"},
+  #
+  # Regular git commits locally
+  #
+  commit: %q{sudo -u <%= @user %>  /bin/bash -c "cd <%= @directory %> && git add . && git commit -m '<%= @message %>' > /dev/null  2>&1"}
+}
+
+#
+# Accepts one positional parameter 'push', if it's not given then do
+# commmit locally.
+# 
+
+ACTION = (ARGV[0] || :commit).to_sym
+
+raise ArgumentError, "Action must be one of #{COMMANDS.keys}" unless COMMANDS.keys.include? ACTION
+
+config = YAML.load_file "#{File.dirname(__FILE__)}/config/git_committer.yml"
+
+#
+# If current host not configured exit silently
+# 
+exit unless ( todo = config[:hosts][Socket.gethostname])
+
+todo.keys.each do |user|
+  
+  todo[user].each do |repo| # each user can have 1 or more repos
+    
+    # Sanity check
+    next unless repo.is_a? Hash
+    next unless Dir.exist? repo[:directory]
+    next unless File.exist?(File.expand_path(repo[:identity]))
+    
+    @user      = user
+    @directory = repo[:directory]
+    @identity  = repo[:identity]
+    @remote    = repo[:remote] || 'origin'
+    @branch    = repo[:branch] || 'master'
+    @message   = repo[:message]
+
+    cmd = ERB.new(COMMANDS[ACTION]).result.strip
+    
+    %x{ #{cmd} }
+    
+  end
+end
