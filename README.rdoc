@@ -1,7 +1,7 @@
 
 == NAME 
 
-git_committer - git unattended automated commits to local and remote
+git_committer - automated git commits to local and remote
 repositories.
 
 == USE CASES

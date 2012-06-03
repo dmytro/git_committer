@@ -1,0 +1,44 @@
+#
+# Note: watch for leading colons in hash keys, they're Symbols
+
+:hosts:
+  # hostname
+  ubuntu11:
+    # user
+    ubuntu:
+      # repository(s)
+      - :directory:
+        #
+        # SSH key (full path)
+        #
+        :identity:
+        #
+        # Remote alias
+        #
+        :remote: origin
+        #
+        # Branch to commit to
+        #
+        :branch: master
+        #
+        # Commit comment
+        #
+        :message: 'Automatic commit'
+
+  svaroh.local:
+    # user
+    dmytro:
+      # repository(s)
+      - :directory: /Users/dmytro/Development/SwiftLaunch/git_committer
+        #
+        # SSH key (full path)
+        #
+        :identity: ~/.ssh/github
+        #
+        # Remote alias
+        #
+        :remote: origin
+        #
+        # Commit comment
+        #
+        :message: 'Automatic commit - test'

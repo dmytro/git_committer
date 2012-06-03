@@ -4,7 +4,7 @@ require 'yaml'
 require 'erb'
 require 'socket'
 
-ENV['PATH'] = '/bin:/usr/bin'
+ENV['PATH'] = '/bin:/usr/bin:/opt/local/bin'
 
 # Git commands run by this script.
 COMMANDS = {
@@ -15,7 +15,11 @@ COMMANDS = {
   #
   # Regular git commits locally
   #
-  commit: %q{sudo -u <%= @user %>  /bin/bash -c "cd <%= @directory %> && git add . && git commit -m '<%= @message %>' > /dev/null  2>&1"}
+  commit: %q{sudo -u <%= @user %>  /bin/bash -c "cd <%= @directory %> && git add . && git commit -m '<%= @message %>' > /dev/null  2>&1"},
+  #
+  # get all branches to find name
+  #
+  get_branch: %q{sudo -u <%= @user %>  /bin/bash -c "cd <%= @directory %> && git branch 2>&1"},
 }
 
 #
@@ -40,18 +44,29 @@ todo.keys.each do |user|
     
     # Sanity check
     next unless repo.is_a? Hash
-    next unless Dir.exist? repo[:directory]
+    next unless Dir.exist?(File.expand_path(repo[:directory]))
     next unless File.exist?(File.expand_path(repo[:identity]))
     
     @user      = user
     @directory = repo[:directory]
     @identity  = repo[:identity]
     @remote    = repo[:remote] || 'origin'
-    @branch    = repo[:branch] || 'master'
     @message   = repo[:message]
 
-    cmd = ERB.new(COMMANDS[ACTION]).result.strip
+    #
+    # Find currently checked out branch
+    #
+    require 'pp'
     
+    shell = %x{ #{ERB.new(COMMANDS[:get_branch]).result.strip} }
+
+    exit 2 if shell =~ /fatal:/
+    exit 2 unless shell =~ /\*/ # Must have line like '* master'
+
+    @branch = shell.split("\n").find{|x| x =~ /^\* /}.sub(/\* /,'') rescue exit
+
+    
+    cmd = ERB.new(COMMANDS[ACTION]).result.strip
     %x{ #{cmd} }
     
   end
