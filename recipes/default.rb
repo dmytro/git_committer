@@ -16,29 +16,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-path = File.expand_path("~#{node[:git_committer][:user]}/#{node[:git_committer][:dirname]}")
+path   = File.expand_path("~#{node[:git_committer][:user]}/#{node[:git_committer][:dirname]}")
+config = "#{path}/config"
+binary = "#{path}/git_committer"
 
+[path, config].each do |dir|
+  directory dir do
+    owner node[:git_committer][:user]
+    mode  '0755'
+  end
+end
 
-directory path do
+cookbook_file binary do 
   owner node[:git_committer][:user]
-  mode  '0755'
-  action :create
+  mode 0700
 end
 
-git path do
-  repo node[:git_committer][:repo]
-  action :sync
-  reference "master"
-end
-
-cron "push" do 
-  hour "0"
-  minute "10"
+# Randomize push'es so that they not all start at the same time, also
+# ensure that push does not happen at the same time as commit.
+cron :git_committer_push do 
+  hour rand(24)
+  minute (rand(55)+5).to_s 
   user node[:git_committer][:user]
   command "#{path}/git_committer push"
 end
 
-cron "commit" do 
+cron :git_committer_commit do 
   hour "*"
   minute "0"
   user node[:git_committer][:user]

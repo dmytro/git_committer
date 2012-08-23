@@ -104,15 +104,39 @@ and creates necessary crontab entries.
   git_committer. This sub-directory is created under
   git_committer[:user] home directory.
 
-* +git_committer[:node][:config] - configuration for automatic user's
-  config creation. See attributes/default.rb comments for details. If
-  this configuration present it will be used as main config, if not
-  then provided YAML files in files/default/git_committer.yml will be
-  used.
+* +git_committer[:node][:config]+ - node configuration for automatic
+  user's config creation. See attributes/default.rb comments for
+  details. If this configuration present it will be used as main
+  config, if not then provided YAML files in
+  +files/default/git_committer.yml+ will be used.
 
   Note: if this automatic configuration section is present, git
   committer will attempt to create and upload SSH keys to github
   account.
+
+  Node configuration hash has following structure:
+
+  
+       { :ubuntu =>                               # +git_committer[:user]+
+       # TODO: attribute cleanups directory <-> dirname
+         { :directory => '/home/ubuntu/test',     # +git_committer[:dirname]+ 
+           :identity => "~/.ssh/git_committer",   # SSH key file name
+           
+           #
+           # Github configuration
+           # 
+           :github => {
+           
+                   :repository  => 'git@github.com:user/repo',
+                   :user => 'gihub-uer', 
+                   :password => 'SECRET',
+                   :create_key => true,
+                   :branch => 'auto-commit-branch',
+                   :setup_branch => true,
+           }         
+        }
+     }
+
 
 
 == Author
