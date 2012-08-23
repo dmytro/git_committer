@@ -9,7 +9,7 @@ and Chef cookbook for deployment. If you want to use only
 +git_committer+ script without Chef deployment, grab it from
 +files/default+ directory.
 
-For instructions of how to use cookbok please see section Cookbook
+For instructions of how to use cookbook please see section Cookbook
 configuration below.
 
 == USE CASES
@@ -28,7 +28,7 @@ configuration below.
   relative to the directory where binary is installed
 
 * Each host is configured separately in configuration from sub-tree
-  corresponding to host'shostname -- as returned by +uname -n+
+  corresponding to host's hostname -- as returned by +uname -n+
   command).
 
   * Every user in host's sub-tree can have one or more
@@ -37,7 +37,7 @@ configuration below.
   * Each repository configuration contains attributes:
 
     - :directory - working directory, i.e. local git repository
-      location. Must exist and contain inititaled .git directory;
+      location. Must exist and contain initiated .git directory;
 
     - :message - commit comment as specified by -m parameter to git
       commit command;
@@ -89,7 +89,7 @@ cron errors from not configured hosts.
 
 Local git repository, SSH key file, git branch all must exist, SSH key
 file should have proper permissions. Script doe not check for SSH key
-permissions and wil fail to run if it's not OK.
+permissions and will fail to run if it's not OK.
 
 === Cookbook configuration
 
@@ -128,7 +128,7 @@ and creates necessary crontab entries.
            :github => {
            
                    :repository  => 'git@github.com:user/repo',
-                   :user => 'gihub-uer', 
+                   :user => 'github-user', 
                    :password => 'SECRET',
                    :create_key => true,
                    :branch => 'auto-commit-branch',
@@ -143,5 +143,6 @@ and creates necessary crontab entries.
 
 Dmytro Kovalov, dmytro.kovalov@gmail.com
 
-May, 2011
+May,Aug 2012
 
+# LocalWords:  committer config
