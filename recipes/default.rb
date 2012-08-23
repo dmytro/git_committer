@@ -48,50 +48,55 @@ cron :git_committer_commit do
   command "#{path}/git_committer"
 end
 
-if node[:git_committer][:node][:config]
-  template "#{path}/config/git_committer.yml" do 
-    source "git_committer.yml.erb"
-    variables({ :users => node[:git_committer][:node][:config] })
-  end
-  #
-  # Githup keys setup. Only when config is provided, not when using
-  # config file from recipe
-  #
-  node[:git_committer][:node][:config].each do |user,config|
-    if config.has_key? :github
 
-      if config[:github][:create_key]
+require 'pp'
+pp node[:git_committer]
 
-        identity   = File.expand_path config[:identity]
-        url        = 'https://api.github.com/user/keys'
-        
-        directory  File.expand_path("~#{user}/.ssh") do
-          owner user
-          group user
-          mode 0700
-          action :create
-          recursive true
-        end
-
-        execute :ssh_keygen do
-          require 'date'
-          key_title = "Git committer key #{user}@#{node.hostname} - #{DateTime.now.to_s}"
-          user  user
-          group user
-          command <<-EOCMD
+if node[:git_committer].has_key? :node
+  if node[:git_committer][:node].has_hey? :config
+    if node[:git_committer][:node][:config]
+      template "#{path}/config/git_committer.yml" do 
+        source "git_committer.yml.erb"
+        variables({ :users => node[:git_committer][:node][:config] })
+      end
+      #
+      # Githup keys setup. Only when config is provided, not when using
+      # config file from recipe
+      #
+      node[:git_committer][:node][:config].each do |user,config|
+        if config.has_key? :github
+          
+          if config[:github][:create_key]
+            
+            identity   = File.expand_path config[:identity]
+            url        = 'https://api.github.com/user/keys'
+            
+            directory  File.expand_path("~#{user}/.ssh") do
+              owner user
+              group user
+              mode 0700
+              action :create
+              recursive true
+            end
+            
+            execute :ssh_keygen do
+              require 'date'
+              key_title = "Git committer key #{user}@#{node.hostname} - #{DateTime.now.to_s}"
+              user  user
+              group user
+              command <<-EOCMD
              ssh-keygen -f #{identity} -t dsa -N ''
              KEY=$(cat #{identity}.pub)
              curl -X POST -L --user #{config[:github][:user]}:#{config[:github][:password]} #{url} --data "{\\"title\\":\\"#{key_title}\\", \\"key\\":\\"$KEY\\"}"
 EOCMD
-          creates "#{identity}"
-          action :run
+              creates "#{identity}"
+              action :run
+            end
+          end
         end
-
       end
-
     end # :github
   end
-
 else
   cookbook_file "#{path}/config/git_committer.yml" do 
     owner node[:git_committer][:user]
