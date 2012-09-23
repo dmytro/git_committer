@@ -3,7 +3,7 @@ Description
 
 This is simple cookbook to deploy `git_committer` script and to create configuration for github commits. Deploy configuration file for git_committer and crontab entries.
 
-At the current time cookbook supports only single local user configuration deployment. While `git_committer` script supports multiple users on multiple hosts configuration, such advanced configurations must be configured manually. See [git_committer documentation](git_committer/GIT_COMMITTER.md) for reference.
+At the current time cookbook supports only single local user configuration deployment. While `git_committer` script supports multiple users on multiple hosts configuration, such advanced configurations must be configured manually. See [git_committer documentation](git_committer/blob/master/GIT_COMMITTER.md) for reference.
 
 Usage
 ============
