@@ -1,14 +1,15 @@
 
-default[:git_committer][:user]       = 'root'
-default[:git_committer][:dirname]    = '.git_committer'
+default[:git_committer][:install][:user]       = 'root'
+default[:git_committer][:install][:dirname]    = '.git_committer'
 
 #
-# If this is present will create config file for the node where
-# deployment is done. If not need to provide git_committer.yml config
-# file.
+# If this is present, cookbook will create config file for the node
+# where deployment is done. If not need to provide git_committer.yml
+# config file.
 #
 # This is just example. Please either write your configuration below,
 # or override it within *.json file
+#
 # default.git_committer.node.config  = \
 # { :ubuntu => # UNIX user name on the host
 #   { :directory => '/home/ubuntu/test',

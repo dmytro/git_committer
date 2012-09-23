@@ -16,19 +16,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-path   = File.expand_path("~#{node[:git_committer][:user]}/#{node[:git_committer][:dirname]}")
+path   = File.expand_path("~#{node[:git_committer][:install][:user]}/#{node[:git_committer][:install][:dirname]}")
 config = "#{path}/config"
 binary = "#{path}/git_committer"
 
 [path, config].each do |dir|
   directory dir do
-    owner node[:git_committer][:user]
+    owner node[:git_committer][:install][:user]
     mode  '0755'
   end
 end
 
 cookbook_file binary do 
-  owner node[:git_committer][:user]
+  owner node[:git_committer][:install][:user]
   mode 0700
 end
 
@@ -37,21 +37,19 @@ end
 cron :git_committer_push do 
   hour rand(24)
   minute (rand(55)+5).to_s 
-  user node[:git_committer][:user]
+  user node[:git_committer][:install][:user]
   command "#{path}/git_committer push"
 end
 
 cron :git_committer_commit do 
   hour "*"
   minute "0"
-  user node[:git_committer][:user]
+  user node[:git_committer][:install][:user]
   command "#{path}/git_committer"
 end
 
 
-require 'pp'
-pp node[:git_committer]
-
+# DATA BAGS HERE - TODO
 if node[:git_committer].has_key? :node
   if node[:git_committer][:node].has_hey? :config
     if node[:git_committer][:node][:config]
@@ -99,7 +97,7 @@ EOCMD
   end
 else
   cookbook_file "#{path}/config/git_committer.yml" do 
-    owner node[:git_committer][:user]
+    owner node[:git_committer][:install][:user]
     source "git_committer.yml"
 
   end

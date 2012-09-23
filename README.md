@@ -20,7 +20,7 @@ USE CASES
 DESCRIPTION
 ===========
 
-* `git_committer` configuration file is `config/git_committer.yml` relative to the directory where binary is installed
+* `git_committer` script's main configuration file is `git_committer.yml`. It should exist in the directory `config` relative to the directory where script is installed. During deployment `git_committer` cookbook either copies pre-created file from `files` directory or builds it from tempplate using attributes' values specified in configuration.
 
 * Each host is configured separately in configuration from sub-tree corresponding to host's hostname -- as returned by `uname -n` command).
 
@@ -32,16 +32,16 @@ DESCRIPTION
 
     - `:message` - commit comment as specified by -m parameter to git commit command;
 
-    - :identity - full path to SSH private key file used for committing to remote repository.
+    - :identity - full path to SSH private key file for committing to Github repository.
 
 USAGE
 =====
 
   ./git_committer [push]
 
-* Optional argument `push` specifies that push to git `origin` repository be made.
+* If optional argument `push` is provided, then `git_committer` will push to `origin` repository;
 
-* Without `push` simply does commit to local repository.
+* Without any arguments it will commit to local repository only.
 
 Crontabs
 --------
@@ -68,11 +68,11 @@ Currently supported only one positional parameter 'push' or 'commit'. If none pr
 Error reporting
 ---------------
 
-Most of the configuration errors or missing configurations are ignored silently.
+Note: Most of the configuration errors or missing configurations are ignored silently.
 
-For example, if current host is not configured to run any commits, then script exits with 0 status without any message. This allows pushing same configuration and crontab to multiple hosts and avoiding cron errors from not configured hosts.
+For example, if current host is not configured to run any commits, then script exits with 0 status without any message. This allows pushing same configuration and crontab to multiple hosts and avoiding cron errors from hosts that are not supposed to send any commits.
 
-Local git repository, SSH key file, git branch all must exist, SSH key file should have proper permissions. Script doe not check for SSH key permissions and will fail to run if it's not OK.
+Local git repository, SSH key file, git branch all must exist, SSH key file should have proper permissions. Script does not check for SSH key permissions and will fail to run if it's not OK.
 
 Cookbook configuration
 ----------------------
@@ -82,11 +82,11 @@ Cookbook deploys git_committer, configuration file for git_committer and creates
 ### Cookbook Attributes
 
 
-* `git_committer[:user]` -- UNIX user to install and run git_committer
+* `git_committer[:install][:user]` -- UNIX user to install and run git_committer
 
-* `git_committer[:dirname]` -- Directory to install git_committer. This sub-directory is created under git_committer[:user] home directory.
+* `git_committer[:install][:dirname]` -- Directory to install git_committer. This sub-directory is created under git_committer[:install][:user] home directory.
 
-* `git_committer[:node][:config]` - node configuration for automatic user's config creation. See attributes/default.rb comments for details. If this configuration present it will be used as main config, if not then provided YAML files in `files/default/git_committer.yml` will be used.
+* `git_committer[:node][:config]` - node configuration for user's config. See attributes/default.rb comments for details. If this configuration present it will be used as main config, if not then provided YAML files in `files/default/git_committer.yml` will be used.
 
   Note: if this automatic configuration section is present, git committer will attempt to create and upload SSH keys to github account.
 
@@ -113,6 +113,13 @@ Cookbook deploys git_committer, configuration file for git_committer and creates
         }
      }
 ````
+
+
+name space
+-----------
+
+git_committer[install](user|dir) -> who runs cron
+git_committer[run_for](( array )) -> users who use it
 
 
 Author
