@@ -1,0 +1,12 @@
+#
+# Note: watch for leading colons in hash keys, they're Symbols
+#
+:hosts:
+  # hostname
+  <%= node.hostname %>:
+
+    <%= @user %>:
+      - :directory: <%= @directory %>
+        :identity:  <%= @identity %>
+        :message: "git_committer <%= @user %>@<%= node.hostname %> -- Automatic Commit"
+
