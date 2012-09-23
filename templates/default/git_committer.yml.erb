@@ -4,10 +4,9 @@
 :hosts:
   # hostname
   <%= node.hostname %>:
-  <% @users.each do |user,config| %>
 
-    <%= user %>:
-      - :directory: <%= config[:directory] %>
-        :identity:  <%= config[:identity] %>
-        :message: "git_committer <%= user %>@<%= node.hostname %> -- Automatic Commit"
-  <% end %>
+    <%= @user %>:
+      - :directory: <%= @directory %>
+        :identity:  <%= @identity %>
+        :message: "git_committer <%= @user %>@<%= node.hostname %> -- Automatic Commit"
+

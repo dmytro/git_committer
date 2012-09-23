@@ -16,89 +16,53 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-path   = File.expand_path("~#{node[:git_committer][:install][:user]}/#{node[:git_committer][:install][:dirname]}")
-config = "#{path}/config"
-binary = "#{path}/git_committer"
+path = File.expand_path("~#{node[:git_committer][:install_as]}/#{node[:git_committer][:install_to]}")
 
-[path, config].each do |dir|
-  directory dir do
-    owner node[:git_committer][:install][:user]
-    mode  '0755'
-  end
+directory path do
+  owner node[:git_committer][:install_as]
+  mode  '0755'
+  action :create
+  recursive true
 end
 
-cookbook_file binary do 
-  owner node[:git_committer][:install][:user]
-  mode 0700
+directory "#{path}/config" do
+  owner node[:git_committer][:install_as]
+  mode  '0755'
+  action :create
 end
+
+cookbook_file "#{path}/git_committer"
+cookbook_file "#{path}/config/git_committer.sample.yml"
+
 
 # Randomize push'es so that they not all start at the same time, also
 # ensure that push does not happen at the same time as commit.
-cron :git_committer_push do 
+cron "push" do 
   hour rand(24)
   minute (rand(55)+5).to_s 
-  user node[:git_committer][:install][:user]
+  user node[:git_committer][:install_as]
   command "#{path}/git_committer push"
 end
 
-cron :git_committer_commit do 
+cron "commit" do 
   hour "*"
   minute "0"
-  user node[:git_committer][:install][:user]
+  user node[:git_committer][:install_as]
   command "#{path}/git_committer"
 end
 
 
-# DATA BAGS HERE - TODO
-if node[:git_committer].has_key? :node
-  if node[:git_committer][:node].has_hey? :config
-    if node[:git_committer][:node][:config]
-      template "#{path}/config/git_committer.yml" do 
-        source "git_committer.yml.erb"
-        variables({ :users => node[:git_committer][:node][:config] })
-      end
-      #
-      # Githup keys setup. Only when config is provided, not when using
-      # config file from recipe
-      #
-      node[:git_committer][:node][:config].each do |user,config|
-        if config.has_key? :github
-          
-          if config[:github][:create_key]
-            
-            identity   = File.expand_path config[:identity]
-            url        = 'https://api.github.com/user/keys'
-            
-            directory  File.expand_path("~#{user}/.ssh") do
-              owner user
-              group user
-              mode 0700
-              action :create
-              recursive true
-            end
-            
-            execute :ssh_keygen do
-              require 'date'
-              key_title = "Git committer key #{user}@#{node.hostname} - #{DateTime.now.to_s}"
-              user  user
-              group user
-              command <<-EOCMD
-             ssh-keygen -f #{identity} -t dsa -N ''
-             KEY=$(cat #{identity}.pub)
-             curl -X POST -L --user #{config[:github][:user]}:#{config[:github][:password]} #{url} --data "{\\"title\\":\\"#{key_title}\\", \\"key\\":\\"$KEY\\"}"
-EOCMD
-              creates "#{identity}"
-              action :run
-            end
-          end
-        end
-      end
-    end # :github
-  end
-else
-  cookbook_file "#{path}/config/git_committer.yml" do 
-    owner node[:git_committer][:install][:user]
-    source "git_committer.yml"
-
-  end
+template "#{path}/config/git_committer.yml" do 
+  source "git_committer.yml.erb"
+  #
+  # Name of the user for installing github keys and committer is
+  # taken form github_keys cookbook.
+  # 
+  variables( { :user => node[:github_keys][:local][:user],
+               :identity => "~/.ssh/#{node[:github_keys][:local][:identity]}",
+               :directory => node[:git_committer][:directory]
+               
+             } )
 end
+
+include_recipe "github_keys"

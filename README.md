@@ -1,133 +1,36 @@
-
-NAME 
-====
-
-git_committer - automated git commits to local and remote repositories.
-
-This distribution includes executable script, configuration samples and Chef cookbook for deployment. If you want to use only `git_committer` script without Chef deployment, grab it from `files/default` directory.
-
-For instructions of how to use cookbook please see section Cookbook configuration below.
-
-USE CASES
-=========
-
-* Automatic backup of server's configuration and/or frequently changed directory;
-
-* Background commits of working directories for user(s) not requiring familiarity with version control systems;
-
-* git based backup of data directories, etc. 
-
-DESCRIPTION
+Description
 ===========
 
-* `git_committer` script's main configuration file is `git_committer.yml`. It should exist in the directory `config` relative to the directory where script is installed. During deployment `git_committer` cookbook either copies pre-created file from `files` directory or builds it from tempplate using attributes' values specified in configuration.
+This is simple cookbook to deploy `git_committer` script and to create configuration for github commits. Deploy configuration file for git_committer and crontab entries.
 
-* Each host is configured separately in configuration from sub-tree corresponding to host's hostname -- as returned by `uname -n` command).
+At the cuurent time cookbook supports only single local user configuration deployment. While `git_committer` script supports multiple users on multiple hosts sonfiguration, such advanced configurations must be configured manually. See `git_committer` documentation for the details.
 
-  * Every user in host's sub-tree can have one or more repositories
+Usage
+============
 
-  * Each repository configuration contains attributes:
+Add it to your librarian `Cheffile` as:
 
-    - `:directory` - working directory, i.e. local git repository location. Must exist and contain initiated .git directory;
-
-    - `:message` - commit comment as specified by -m parameter to git commit command;
-
-    - :identity - full path to SSH private key file for committing to Github repository.
-
-USAGE
-=====
-
-  ./git_committer [push]
-
-* If optional argument `push` is provided, then `git_committer` will push to `origin` repository;
-
-* Without any arguments it will commit to local repository only.
-
-Crontabs
---------
-
-To automate commits periodically and send commits to git origin put something similar to the below into crontab:
-
-````
-  */30 * * * * git_committer
-  35 01 * * *  git_committer push
+````ruby
+cookbook 'git_committer',
+   :git => 'git@github.com:dmytro/git_committer.git'
 ````
 
-This will run local commits every half hour and push to remote once a day at 01:35am.
-
-Sudo
-----
-
-All commands in `git_committer` are executed using sudo.  `git_committer` user must have configuration to execute script without password (NOPASSWD: option in sudoers file).
-
-Command line options
---------------------
-
-Currently supported only one positional parameter 'push' or 'commit'. If none provided then 'commit' is assumed. 'commit' - commits to local repository, 'push' - pushes to remote branch.
-
-Error reporting
----------------
-
-Note: Most of the configuration errors or missing configurations are ignored silently.
-
-For example, if current host is not configured to run any commits, then script exits with 0 status without any message. This allows pushing same configuration and crontab to multiple hosts and avoiding cron errors from hosts that are not supposed to send any commits.
-
-Local git repository, SSH key file, git branch all must exist, SSH key file should have proper permissions. Script does not check for SSH key permissions and will fail to run if it's not OK.
-
-Cookbook configuration
-----------------------
-
-Cookbook deploys git_committer, configuration file for git_committer and creates necessary crontab entries.
-
-### Cookbook Attributes
-
-
-* `git_committer[:install][:user]` -- UNIX user to install and run git_committer
-
-* `git_committer[:install][:dirname]` -- Directory to install git_committer. This sub-directory is created under git_committer[:install][:user] home directory.
-
-* `git_committer[:node][:config]` - node configuration for user's config. See attributes/default.rb comments for details. If this configuration present it will be used as main config, if not then provided YAML files in `files/default/git_committer.yml` will be used.
-
-  Note: if this automatic configuration section is present, git committer will attempt to create and upload SSH keys to github account.
-
-  Node configuration hash has following structure:
-
-````  
-       { :ubuntu =>                               # `git_committer[:user]`
-       # TODO: attribute cleanups directory <-> dirname
-         { :directory => '/home/ubuntu/test',     # `git_committer[:dirname]` 
-           :identity => "~/.ssh/git_committer",   # SSH key file name
-           
-           #
-           # Github configuration
-           # 
-           :github => {
-           
-                   :repository  => 'git@github.com:user/repo',
-                   :user => 'github-user', 
-                   :password => 'SECRET',
-                   :create_key => true,
-                   :branch => 'auto-commit-branch',
-                   :setup_branch => true,
-           }         
-        }
-     }
-````
-
-
-name space
+Dependecies
 -----------
 
-git_committer[install](user|dir) -> who runs cron
-git_committer[run_for](( array )) -> users who use it
+`git_committer` cookbook relies on [github_keys](http://github.com:dmytro/github_keys.git) cookbook for creating and  deployment of ssh keys to Github.
+
+UNIX local user name and SSH identity file is configured in `github_keys` cookbook. Only attributed described below are configured in this cookbook.
 
 
-Author
-------
+Attributes
+==========
 
-Dmytro Kovalov, dmytro.kovalov@gmail.com
+* `git_committer/directory`  -- Local repository directory
 
-May,Aug 2012
+* `git_committer/install_as`   --  UNIX user to install and run git_committer
 
-LocalWords:  committer config
+* `git_committer/install_to` --
+   Directory to install `git_committer`. Sub-directory is created under `git_committer/install_as` home directory
+
 

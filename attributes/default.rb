@@ -1,15 +1,16 @@
 
-default[:git_committer][:install][:user]       = 'root'
-default[:git_committer][:install][:dirname]    = '.git_committer'
+default.git_committer.install_as    = 'root'
+default.git_committer.install_to    = '.git_committer'
+
+default.git_committer.directory    = '~'
 
 #
-# If this is present, cookbook will create config file for the node
-# where deployment is done. If not need to provide git_committer.yml
-# config file.
+# If this is present will create config file for the node where
+# deployment is done. If not need to provide git_committer.yml config
+# file.
 #
 # This is just example. Please either write your configuration below,
 # or override it within *.json file
-#
 # default.git_committer.node.config  = \
 # { :ubuntu => # UNIX user name on the host
 #   { :directory => '/home/ubuntu/test',
@@ -24,3 +25,10 @@ default[:git_committer][:install][:dirname]    = '.git_committer'
 #     }
 #   }
 # }
+
+
+# default.git_committer.config.gituhub.user       = 
+# default.git_committer.config.gituhub.password   = 
+# default.git_committer.config.gituhub.create_key = 
+# default.git_committer.config.gituhub.upload_key = 
+
