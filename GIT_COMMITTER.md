@@ -27,7 +27,7 @@ Configuration
 
 Each repository configuration contains attributes:
 
-- :directory - working directory, i.e. local git repository location. Must exist and contain inititaled .git directory;
+- :directory - working directory, i.e. local git repository location. Must exist and contain initiated .git directory;
 
 - :remote - alias for remote repository. Remote repository must exist and alias must be created by git remote command. If not specified, defaults to 'origin'.
 
@@ -74,12 +74,12 @@ Most of the configuration errors or missing configurations are ignored silently.
 
 For example, if current host is not configured to run any commits, then script exits with 0 status without any message. This allows pushing same configuration and crontab to multiple hosts and avoiding cron errors from not configured hosts.
 
-Local git repository, SSH key file, git branch all must exist, SSH key file should have proper permissions. Script doe not check for SSH key permissions and wil fail to run if it's not OK.
+Local git repository, SSH key file, git branch all must exist, SSH key file should have proper permissions. Script doe not check for SSH key permissions and will fail to run if it's not OK.
 
 See also
 ========
 
-Simple Chef cookbook is provied together with this script which will install automatically simplifiled coonfiguration - single user on single host.
+Simple Chef cookbook is provided together with this script which will install automatically simplified configuration - single user on single host.
 
 Author
 ======
