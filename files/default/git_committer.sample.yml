@@ -1,0 +1,23 @@
+#
+# Note: watch for leading colons in hash keys, they're Symbols
+
+:hosts:
+  # hostname
+  # hostname
+  ip-10-190-81-180:
+    # user
+    ubuntu:
+      # repository(s)
+      - :directory:
+        #
+        # SSH key (full path)
+        #
+        :identity: ~/.ssh/id_rsa
+        #
+        # Remote alias
+        #
+        :remote: origin
+        #
+        # Commit comment
+        #
+        :message: 'git_committer Automatic Commit'
